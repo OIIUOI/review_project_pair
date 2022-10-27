@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block base %}
+{{ user.username }}
+<a href="{% url %}">
+  {% if %}
+  {{ user.followings.count }}
+</a>
+{% if request.user == user %}
+{{ user.review_set.all }}
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block base %}
+<form action="" method="post">
+  {% csrf_token %}
+  {{ userform }}
+  <button type="submit">가입</button>
+</form>
+
+{% endblock %}
