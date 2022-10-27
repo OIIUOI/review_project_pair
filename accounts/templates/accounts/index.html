@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block base %}
+  <h1 class="text-center my-5 ">회원 목록</h1>
+  <div class='container'>
+    <table class='table'>
+      <thead>
+        <tr>
+          <th scope='col'>회원 번호</th>
+          <th scope='col'>회원 이름</th>
+          <th scope='col'>이메일</th>
+          <th scope='col'>가입일</th>
+          <th scope="col">팔로워</th>
+          <th scope="col">팔로잉</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in v %}
+          <tr>
+            <th scope='row'>{{ member.id }}</th>
+            <td>
+              <a href='{% url 'accounts:detail' member.pk %}' class="text-decoration-none text-dark fw-bold">{{ member.username }}</a>
+            </td>
+            <td>{{ member.email }}</td>
+            <td>{{ member.date_joined }}</td>
+            <td>{{ member.followers.all|length }}</td>
+            <td>{{ member.followings.all|length }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

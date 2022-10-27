@@ -17,8 +17,8 @@ class Review(models.Model):
     (5, "★★★★★"),
     ]
     grade = models.IntegerField(choices=RATING, default=None)
-    image = models.ImageField(upload_to='images/', blank=True)
-    thumb_nail = ProcessedImageField(upload_to='images/', blank=True,
+    image = models.ImageField(upload_to='image/', blank=True)
+    thumb_nail = ProcessedImageField(upload_to='image/', blank=True,
                                 processors=[ResizeToFill(1200, 960)],
                                 format='JPEG',
                                 options={'quality': 80})

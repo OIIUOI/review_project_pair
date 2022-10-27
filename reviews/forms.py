@@ -11,7 +11,7 @@ class ReviewForm(forms.ModelForm):
             "content": "내용",
             "grade":"평점",
             "image":"이미지",
-            "thumbnail":"썸네일",
+            "thumb_nail":"썸네일",
         }
 
 class CommentForm(forms.ModelForm):

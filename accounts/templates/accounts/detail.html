@@ -1,13 +1,9 @@
 {% extends 'base.html' %}
 
 {% block base %}
-{{ user.username }}
-<a href="{% url %}">
-  {% if %}
-  {{ user.followings.count }}
-</a>
-{% if request.user == user %}
-{{ user.review_set.all }}
-{% endif %}
+  {{ user.username }}
+  {% if request.user == user %}
+    {% for i in user.review_set.all %}{% endfor %}
+  {% endif %}
 
 {% endblock %}
