@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from .forms import CustomUserCreationForm,CustomUserChangeForm
 from django.contrib.auth import login, logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from reviews.models import Review, Comment
@@ -43,17 +44,19 @@ def log_out(request):
 
 
 @login_required
-def changepassword(request):
-    if request.method == "POST":
-        changepassword = PasswordChangeForm(request.user, request.POST)
-        if changepassword.is_valid():
-            changepassword.save()
-            return redirect("accounts:login")
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            return redirect('reviews:index')
     else:
-        changepassword = PasswordChangeForm(request.user)
-    context = {"changepassword": changepassword}
-    return render(request, "accounts/changepassword.html", context)
-
+        form = PasswordChangeForm(request.user)
+    context = {
+    'form': form,
+    }
+    return render(request, 'accounts/change_password.html', context)
 def detail(request, pk):
     user = get_user_model().objects.get(pk = pk)
     reviews = Review.objects.filter(user_id = pk)

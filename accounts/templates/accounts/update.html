@@ -1,11 +1,17 @@
 {% extends 'base.html' %}
 {% load django_bootstrap5 %}
-{% block base %}
 
-<form action="" method="POST" enctype="multipart/form-data">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  <button type="submit">수정</button>
-</form>
+{% block base %}
+  <div class="container" style="width: 600px">
+    <div class="my-5">
+      <h1 class="text-center my-5">회원 정보 수정</h1>
+      <form action="" method="POST" enctype="multipart/form-data>
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-dark me-3">비밀번호 수정하러 가기</a>
+        <button type="submit" class="btn btn-dark">제출</button>
+      </form>
+    </div>
+  </div>
 
 {% endblock %}
