@@ -22,8 +22,10 @@
               <tbody class="table-group-divider">
                 {% for board in boards %}
                   <tr>
-                    {% if board.image %}
+                    {% if board.thumbnail %}
                       <td><img src="{{ board.thumbnail.url }}" alt=""></td>
+                    {% else %}
+                      <td><img src="https://dummyimage.com/200x100/000/fff" alt=""></td>
                     {% endif %}
                     {% if board.grade == 1 %}
                       <th scope="row">⭐️</th>

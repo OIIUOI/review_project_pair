@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from PIL import Image
 from django.core.paginator import Paginator
 from pilkit.processors import Thumbnail
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -39,9 +40,71 @@ def create(request):
     }
     return render(request, 'reviews/create.html', context)
 
+@login_required
+def delete(request, pk):
+    review = Review.objects.get(pk=pk)
+    if request.user.pk == review.user.pk:
+        review.delete()
+        return redirect('reviews:index')
+    else:
+        messages.warning(request, '작성자만 삭제 할 수 있습니다.')
+        return redirect('reviews:detail', pk)
+
+
+
+
+
 def detail(request, pk):
     review = Review.objects.get(pk=pk)
+    comments = review.comment_set.all()
+    comment_form = CommentForm()
     context = {
         'review':review,
+        'comment_form':comment_form,
+        'comments':comments,
     }
     return render(request, 'reviews/detail.html', context)
+
+@login_required
+def update(request, pk):
+    review = Review.objects.get(pk=pk)
+    if request.user == review.user:
+        if request.method == 'POST':
+            review_form = ReviewForm(request.POST, request.FILES, instance=review)
+            if review_form.is_valid():
+                review_form.save()
+                return redirect('reviews:detail', pk)
+        else:
+            Review_Form = ReviewForm(instance=review)
+        context = {
+            'Review_Form':Review_Form
+        }
+        return render(request, 'reviews/create.html', context)
+    else:
+        return redirect('reviews:detail', pk)
+
+@login_required
+def comments_create(request,pk):
+    if request.user.is_authenticated:
+        review = Review.objects.get(pk=pk)
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.article = review
+            comment.user = request.user
+            comment.save()
+
+            return redirect('reviews:detail', pk)
+        
+
+
+@login_required
+def comments_delete(request, review_pk, comment_pk):
+    review = Review.objects.get(pk=review_pk)
+    comment = Comment.objects.get(pk=comment_pk)
+    if request.user.pk == comment.user.pk:
+        comment.delete()
+        return redirect('reviews:detail', review.pk)
+    else:
+        messages.warning(request, '작성자만 삭제 할 수 있습니다.')
+        return redirect('reviews:detail', review.pk)

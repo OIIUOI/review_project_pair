@@ -6,7 +6,7 @@ from imagekit.processors import ResizeToFill
 # Create your models here.
 class Review(models.Model):
     title = models.CharField(max_length=40)
-    content = models.TextField()
+    content = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     RATING = [
@@ -18,8 +18,8 @@ class Review(models.Model):
     ]
     grade = models.IntegerField(choices=RATING, default=None)
     image = models.ImageField(upload_to='image/', blank=True)
-    thumb_nail = ProcessedImageField(upload_to='image/', blank=True,
-                                processors=[ResizeToFill(1200, 960)],
+    thumbnail = ProcessedImageField(upload_to='image/', blank=True,
+                                processors=[ResizeToFill(200, 100)],
                                 format='JPEG',
                                 options={'quality': 80})
     hits = models.PositiveIntegerField(default=0, verbose_name="조회수")
@@ -34,7 +34,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    content = models.TextField()
+    content = models.CharField(max_length=200,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     article = models.ForeignKey(Review, on_delete=models.CASCADE)
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
