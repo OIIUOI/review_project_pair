@@ -51,9 +51,6 @@ def delete(request, pk):
         return redirect('reviews:detail', pk)
 
 
-
-
-
 def detail(request, pk):
     review = Review.objects.get(pk=pk)
     comments = review.comment_set.all()

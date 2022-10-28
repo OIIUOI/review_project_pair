@@ -1,9 +1,26 @@
 {% extends 'base.html' %}
 
 {% block base %}
-  {{ user.username }}
-  {% if request.user == user %}
-    {% for i in user.review_set.all %}{% endfor %}
-  {% endif %}
+<div class="container">
+  <h1>{{ user.username }}</h1>
 
+  {% for f in user.followings.all %}
+  {{ f.username }}
+  {% endfor %}
+  <a href="{% url 'accounts:follow' user.pk %}">
+    <button>팔로우</button>
+  </a>
+  <div>
+    <h2>{{ user.username }}이 작성한 글</h2>
+    {% for i in user.review_set.all %}
+    <p>{{ i.title }}</p>
+    {% endfor %}
+  </div>
+  <div>
+    <h2>{{ user.username }}이 작성한 댓글</h2>
+    {% for comment in user.comment_set.all %}
+    {{ comment.content}}
+    {% endfor %}
+  </div>
+</div>
 {% endblock %}
