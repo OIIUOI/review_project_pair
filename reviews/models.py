@@ -17,7 +17,7 @@ class Review(models.Model):
     (5, "★★★★★"),
     ]
     grade = models.IntegerField(choices=RATING, default=None)
-    image = models.ImageField(upload_to='image/', blank=True)
+    image = models.ImageField(upload_to='image/', blank=True,)
     thumbnail = ProcessedImageField(upload_to='image/', blank=True,
                                 processors=[ResizeToFill(200, 100)],
                                 format='JPEG',

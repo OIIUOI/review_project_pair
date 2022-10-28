@@ -14,41 +14,41 @@ from django.contrib import messages
 
 # Create your views here.
 def index(request):
-    reviews = Review.objects.all().order_by('-pk')
-    page = int(request.GET.get('p', 1))
+    reviews = Review.objects.all().order_by("-pk")
+    page = int(request.GET.get("p", 1))
     pagenator = Paginator(reviews, 5)
     boards = pagenator.get_page(page)
     context = {
-        'reviews': reviews,
-        "boards":boards,
+        "reviews": reviews,
+        "boards": boards,
     }
-    return render(request, 'reviews/index.html', context)
+    return render(request, "reviews/index.html", context)
+
 
 @login_required
 def create(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         Review_Form = ReviewForm(request.POST, request.FILES)
         if Review_Form.is_valid():
             post = Review_Form.save(commit=False)
             post.user = request.user
             post.save()
-            return redirect('reviews:index')
-    else: 
+            return redirect("reviews:index")
+    else:
         Review_Form = ReviewForm()
-    context = {
-        'Review_Form': Review_Form
-    }
-    return render(request, 'reviews/create.html', context)
+    context = {"Review_Form": Review_Form}
+    return render(request, "reviews/create.html", context)
+
 
 @login_required
 def delete(request, pk):
     review = Review.objects.get(pk=pk)
     if request.user.pk == review.user.pk:
         review.delete()
-        return redirect('reviews:index')
+        return redirect("reviews:index")
     else:
-        messages.warning(request, '작성자만 삭제 할 수 있습니다.')
-        return redirect('reviews:detail', pk)
+        messages.warning(request, "작성자만 삭제 할 수 있습니다.")
+        return redirect("reviews:detail", pk)
 
 
 def detail(request, pk):
@@ -56,32 +56,32 @@ def detail(request, pk):
     comments = review.comment_set.all()
     comment_form = CommentForm()
     context = {
-        'review':review,
-        'comment_form':comment_form,
-        'comments':comments,
+        "review": review,
+        "comment_form": comment_form,
+        "comments": comments,
     }
-    return render(request, 'reviews/detail.html', context)
+    return render(request, "reviews/detail.html", context)
+
 
 @login_required
 def update(request, pk):
     review = Review.objects.get(pk=pk)
     if request.user == review.user:
-        if request.method == 'POST':
+        if request.method == "POST":
             review_form = ReviewForm(request.POST, request.FILES, instance=review)
             if review_form.is_valid():
                 review_form.save()
-                return redirect('reviews:detail', pk)
+                return redirect("reviews:detail", pk)
         else:
             Review_Form = ReviewForm(instance=review)
-        context = {
-            'Review_Form':Review_Form
-        }
-        return render(request, 'reviews/create.html', context)
+        context = {"Review_Form": Review_Form}
+        return render(request, "reviews/create.html", context)
     else:
-        return redirect('reviews:detail', pk)
+        return redirect("reviews:detail", pk)
+
 
 @login_required
-def comments_create(request,pk):
+def comments_create(request, pk):
     if request.user.is_authenticated:
         review = Review.objects.get(pk=pk)
         comment_form = CommentForm(request.POST)
@@ -91,8 +91,7 @@ def comments_create(request,pk):
             comment.user = request.user
             comment.save()
 
-            return redirect('reviews:detail', pk)
-        
+            return redirect("reviews:detail", pk)
 
 
 @login_required
@@ -101,7 +100,40 @@ def comments_delete(request, review_pk, comment_pk):
     comment = Comment.objects.get(pk=comment_pk)
     if request.user.pk == comment.user.pk:
         comment.delete()
-        return redirect('reviews:detail', review.pk)
+        return redirect("reviews:detail", review.pk)
     else:
-        messages.warning(request, '작성자만 삭제 할 수 있습니다.')
-        return redirect('reviews:detail', review.pk)
+        messages.warning(request, "작성자만 삭제 할 수 있습니다.")
+        return redirect("reviews:detail", review.pk)
+
+
+@login_required
+def like(request, pk):
+    review = Review.objects.get(pk=pk)
+    if request.user in review.like_user.all():
+        review.like_user.remove(request.user)
+    else:
+        review.like_user.add(request.user)
+    return redirect("reviews:detail", pk)
+
+@login_required
+def comment_update(request, review_pk, comment_pk):
+    review = Review.objects.get(pk=review_pk)
+    comment= Comment.objects.get(pk=comment_pk)
+    comments = review.comment_set.all()
+    if request.user == comment.user:
+        if request.method == 'POST':
+            comment_form = CommentForm(request.POST, instance = comment)
+            if comment_form.is_valid():
+                comment_form.save()
+                return redirect('reviews:detail', review_pk)
+        else:
+            comment_form = CommentForm(instance = comment)
+            context={
+                'comment_form' : comment_form, 
+                'review' : review,
+                'pk' : comment_pk,
+                'comments' : comments
+            }
+            return render(request, 'reviews/comment_update.html', context)
+    else:
+        return redirect('reviews:detail', review_pk)
