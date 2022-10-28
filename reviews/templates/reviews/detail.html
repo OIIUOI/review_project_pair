@@ -8,6 +8,9 @@
   {% if review.image %}
   사진
   <img src="{{ review.image.url }}" alt="">
+  {% else %}
+  {% endif %}
+  {% if review.thumbnail %}
   <img src="{{ review.thumbnail.url }}" alt="">
 
   {% else %}
