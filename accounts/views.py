@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from django.http import JsonResponse
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm,CustomUserChangeForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-
+from reviews.models import Review, Comment
 # Create your views here.
 def index(request):
     all = get_user_model().objects.all()
@@ -54,27 +54,50 @@ def changepassword(request):
     context = {"changepassword": changepassword}
     return render(request, "accounts/changepassword.html", context)
 
-
 def detail(request, pk):
-    user = get_user_model().objects.get(pk=pk)
-    context = {"user": user}
-    return render(request, "accounts/detail.html", context)
-
+    user = get_user_model().objects.get(pk = pk)
+    reviews = Review.objects.filter(user_id = pk)
+    comments = Comment.objects.filter(user_id = pk)
+    person = get_object_or_404(get_user_model(), pk = pk)
+    context = {
+        "person": person,
+        'user': user,
+        'reviews': reviews,
+        'comments': comments,
+    }
+    return render(request, 'accounts/detail.html', context)
 def follow(request, user_pk):
     if request.user.is_authenticated:
-        person = get_object_or_404(get_user_model(), pk=user_pk)
+        person = get_object_or_404(get_user_model(), pk = user_pk)
         if person != request.user:
-            if person.followers.filter(pk=request.user.pk).exists():
+            if person.followers.filter(pk = request.user.pk).exists():
                 person.followers.remove(request.user)
                 is_followed = False
             else:
                 person.followers.add(request.user)
                 is_followed = True
             data = {
-                'is_followed':is_followed,
+                'is_followed': is_followed,
                 'followers_count': person.followers.count(),
                 'followings_count': person.followings.count(),
             }
-            return redirect('accounts:detail', person.pk)
+            return JsonResponse(data)
         return redirect('accounts:detail', person.pk)
     return redirect('accounts:login')
+@login_required
+def update(request):
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('accounts:detail', request.user.pk)
+    else:
+        form = CustomUserChangeForm(instance=request.user)
+    context = {
+        'form': form
+    }
+    return render(request, 'accounts/update.html', context)
+def delete(request):
+    request.user.delete()
+    logout(request)
+    return redirect('reviews:index')
