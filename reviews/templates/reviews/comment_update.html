@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block base %}
+<div class="container">
+  제목:<h1>{{review.title}}</h1>
+  내용:<p>{{review.content}}</p>
+
+  {% if review.image %}
+  사진
+  <img src="{{ review.image.url }}" alt="">
+  <img src="{{ review.thumbnail.url }}" alt="">
+
+  {% else %}
+  {% endif %}
+
+  <a href="{% url 'reviews:like' review.pk %}"><button>
+      {% if request.user in review.like_user.all %}
+      <i class="bi bi-hand-thumbs-up"></i>
+      {% else %}
+      <i class="bi bi-hand-thumbs-up-fill"></i>
+      {% endif %}
+    </button></a>
+  {{ review.like_user.count }}
+
+
+  {% for comment in comments %}
+  <div>
+    <p>
+      {% if comment.pk == pk %}
+    <form action="" method="POST">
+      {% csrf_token %}
+      {% bootstrap_form comment_form %}
+      <button type="submit" class="btn btn-dark">제출</button>
+    </form>
+    {% else %}
+    {{ comment.user.username }}|{{ comment.content }}|{{ comment.created_at|date:"y-m-d" }}
+    {% endif %}
+    </p>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
